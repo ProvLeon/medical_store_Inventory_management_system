@@ -1,9 +1,8 @@
 <?php
-	include 'config.php';
+	include 'db_connection.php';
 
-	if(!($dbconn = @mysql_connect($dbhost, $dbuser, $dbpass))) exit('Error connecting to database.');
-	mysql_select_db($db);
-	
+	$dbconn = Connect();
+
 	$q=$_GET["q"];
 	//$q = name,buy_timestamp,expiry_date,chem_amt,cp;
 	$p = explode(",", $q);

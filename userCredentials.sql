@@ -3,13 +3,14 @@ CREATE DATABASE IF NOT EXISTS final_project;
 USE final_project;
 
 CREATE TABLE IF NOT EXISTS users (
-username varchar(15),
-password varchar(32),
-role varchar(15)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('med_admin', 'receptionist', 'doctor') NOT NULL
 );
 
-INSERT INTO users VALUES ('recept', 'pass1234', 'receptionist');
+INSERT INTO users (username, password, role) VALUES ('recept', 'pass1234', 'receptionist');
 
-INSERT INTO users VALUES ('doctor', 'pass1234', 'doctor');
+INSERT INTO users (username, password, role) VALUES ('doctor', 'pass1234', 'doctor');
 
-INSERT INTO users VALUES ('medadmin', 'pass1234', 'med_admin')
+INSERT INTO users (username, password, role) VALUES ('medadmin', 'pass1234', 'med_admin');

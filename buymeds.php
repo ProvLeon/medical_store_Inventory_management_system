@@ -1,11 +1,10 @@
 <?php
 	if( isset($_POST['submit']) )
 	{
-		include 'config.php';
+		include 'db_connection.php';
 
-		if(!($dbconn = @mysql_connect($dbhost, $dbuser, $dbpass))) exit('Error connecting to database.');
-		mysql_select_db($db);
-		
+		$dbconn = Connect();
+
 		$medname = $_POST['name'];
 		$expdate = $_POST['expirydate'];
 		$chemamt = $_POST['chemamt'];

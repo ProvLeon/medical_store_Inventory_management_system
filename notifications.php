@@ -9,7 +9,7 @@ class Notifications {
     }
 
     public function checkLowStock() {
-        $query = "SELECT name, qty FROM medicine WHERE qty <= ?";
+        $query = "SELECT name, quantity FROM medicine WHERE quantity <= ?";
         $stmt = $this->dbconn->prepare($query);
         $stmt->bind_param("i", $this->lowStockThreshold);
         $stmt->execute();
@@ -43,10 +43,23 @@ class Notifications {
         $lowStockItems = $this->checkLowStock();
         $expiringItems = $this->checkExpiringItems();
 
-        return [
-            'lowStock' => $lowStockItems,
-            'expiring' => $expiringItems
-        ];
+        $notifications = [];
+
+        foreach ($lowStockItems as $item) {
+            $notifications[] = [
+                'type' => 'low_stock',
+                'message' => "Low stock alert: {$item['name']} (Quantity: {$item['quantity']})"
+            ];
+        }
+
+        foreach ($expiringItems as $item) {
+            $notifications[] = [
+                'type' => 'expiring',
+                'message' => "Expiring soon: {$item['name']} (Expiry: {$item['expiry_date']})"
+            ];
+        }
+
+        return $notifications;
     }
 }
 ?>
