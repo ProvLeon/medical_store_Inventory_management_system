@@ -1,14 +1,29 @@
 <?php
-session_start();
+require_once 'session_config.php';
+
 require_once 'config.php';
 require_once 'db_connection.php';
 
-if (!isset($_SESSION['receptionist'])) {
+
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'receptionist') {
     header('HTTP/1.0 403 Forbidden');
     exit('Access denied');
 }
 
 $dbconn = Connect();
+
+$employeeId = isset($_SESSION['employee_id']) ? $_SESSION['employee_id'] : null;
+
+if ($employeeId === null) {
+    $response = [
+        'success' => false,
+        'message' => "Error: Employee ID not found. Please log out and log in again."
+    ];
+    echo json_encode($response);
+    exit;
+}
+
 
 $medicineName = mysqli_real_escape_string($dbconn, $_POST['medicineName']);
 $expiryDate = mysqli_real_escape_string($dbconn, $_POST['expiryDate']);
@@ -75,7 +90,6 @@ try {
     // Link transaction to person
     $query = "INSERT INTO " . DB_TABLE_TXN_PERSON . " (id, pid_person, pid_employee) VALUES (?, ?, ?)";
     $stmt = mysqli_prepare($dbconn, $query);
-    $employeeId = $_SESSION['employee_id']; // Assuming you store the employee ID in the session
     mysqli_stmt_bind_param($stmt, "iii", $transactionId, $personId, $employeeId);
     mysqli_stmt_execute($stmt);
 

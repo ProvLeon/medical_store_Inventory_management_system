@@ -1,9 +1,12 @@
 <?php
-session_start();
-if(!isset($_SESSION['med_admin'])) {
+require_once 'session_config.php';
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'med_admin') {
+    error_log('Access denied to med_admin_screen.php. Role: ' . (isset($_SESSION['role']) ? $_SESSION['role'] : 'not set'));
     header("Location: index.html");
     exit();
 }
+
 include 'db_connection.php';
 $dbconn = Connect();
 ?>
@@ -223,6 +226,14 @@ $dbconn = Connect();
                                 <div class="form-group">
                                     <label for="password">Password</label>
                                     <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name">Full Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <textarea class="form-control" id="address" name="address" required></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="role">Role</label>

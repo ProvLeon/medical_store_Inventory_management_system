@@ -1,5 +1,6 @@
 <?php
-	session_start();
+require_once 'session_config.php';
+
 	if(!isset($_SESSION['doctor']))
 	{
 		header("Location: index.html");

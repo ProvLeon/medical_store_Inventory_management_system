@@ -1,9 +1,10 @@
 <?php
-session_start();
+require_once 'session_config.php';
+
 require_once 'config.php';
 require_once 'db_connection.php';
 
-if (!isset($_SESSION['med_admin'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'med_admin') {
     header('HTTP/1.0 403 Forbidden');
     exit('Access denied');
 }

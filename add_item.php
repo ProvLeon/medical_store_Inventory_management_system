@@ -3,7 +3,7 @@ session_start();
 require_once 'config.php';
 require_once 'db_connection.php';
 
-if (!isset($_SESSION['med_admin'])) {
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], [ 'med_admin'])) {
     header('HTTP/1.0 403 Forbidden');
     exit('Access denied');
 }

@@ -108,14 +108,16 @@ $(document).ready(function () {
           alert("Purchase completed successfully!\nTransaction ID: " + response.transactionId + "\nTotal Amount: $" + response.totalAmount);
           $('#purchaseMedicineForm')[0].reset();
           $('#purchaseMedicineModal').modal('hide');
-          $('#purchaseMedicineForm')[0].reset();
         } else {
           alert("Error completing purchase: " + response.message);
+          if (response.message.includes("Employee ID not found")) {
+            window.location.href = 'logout.php';
+          }
         }
       },
       error: function (xhr, status, error) {
         console.error("Error completing purchase:", error);
-        alert("Error completing purchase. Please try again.");
+        alert("Error completing purchase. Please try again. Details: " + xhr.responseText);
       }
     });
   });

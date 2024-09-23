@@ -1,6 +1,7 @@
 <?php
-session_start();
-if(!isset($_SESSION['doctor'])) {
+require_once 'session_config.php';
+
+if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'doctor') {
     header("Location: index.html");
     exit();
 }

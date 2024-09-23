@@ -1,11 +1,18 @@
 <?php
-session_start();
-if(!isset($_SESSION['receptionist'])) {
+require_once 'session_config.php';
+require_once 'config.php';
+require_once 'db_connection.php';
+
+// For debugging
+error_log('med_store_reception.php accessed. Session data: ' . print_r($_SESSION, true));
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'receptionist') {
+    error_log('Access denied to med_store_reception.php. Role: ' . (isset($_SESSION['role']) ? $_SESSION['role'] : 'not set'));
     header("Location: index.html");
     exit();
 }
-require_once 'config.php';
-require_once 'db_connection.php';
+
+
 $dbconn = Connect();
 
 require_once 'notifications.php';
@@ -291,6 +298,9 @@ mysqli_close($dbconn);
                             <p><strong>Selling Price:</strong> ${medicine.sp}</p>
                             <p><strong>Expiry Date:</strong> ${medicine.expiry_date}</p>
                             <p><strong>Chemical Amount:</strong> ${medicine.chem_amount}</p>
+                            <p><strong>Buy Timestamp:</strong> ${medicine.buy_timestamp}</p>
+                            <p><strong>Pharmacos:</strong> ${medicine.pharmacos.join(', ') || 'None'}</p>
+                            <p><strong>Compounds:</strong> ${medicine.compounds.join(', ') || 'None'}</p>
                         `;
                         $("#viewMedicineBody").html(detailsHtml);
                         $("#viewMedicineModal").modal('show');
@@ -298,11 +308,13 @@ mysqli_close($dbconn);
                         alert("Error: " + response.message);
                     }
                 },
-                error: function() {
-                    alert("Error fetching medicine details");
+                error: function(xhr, status, error) {
+                    console.error("Error fetching medicine details:", error);
+                    alert("Error fetching medicine details. Please try again.");
                 }
             });
         });
+
 
         // Sell single medicine
         $(document).on('click', '.sell-medicine', function() {

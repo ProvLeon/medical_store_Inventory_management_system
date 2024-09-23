@@ -1,24 +1,248 @@
-<html>
-	<head>
-		<title>Medical Store Management</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedStore Pro - Medical Store Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #0056b3;
+            color: #ffffff;
+            padding-top: 10px;
+            min-height: 60px;
+            border-bottom: #e8491d 3px solid;
+        }
+        header a {
+            color: #ffffff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+        header ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            overflow: hidden;
+        }
+        header li {
+            float: left;
+            display: inline;
+            padding: 0 20px 0 20px;
+        }
+        header #branding {
+            float: left;
+        }
+        header #branding h1 {
+            margin: 0;
+        }
+        header nav {
+            float: right;
+            margin-top: 10px;
+        }
+        header .highlight, header .current a {
+            color: #e8491d;
+            font-weight: bold;
+        }
+        header a:hover {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        #showcase {
+            min-height: 400px;
+            background: url('/public/landing_page_image.png') no-repeat 0 -400px;
+            text-align: center;
+            color: #ffffff;
+        }
+        #showcase h1 {
+            margin-top: 100px;
+            font-size: 55px;
+            margin-bottom: 10px;
+        }
+        #showcase p {
+            font-size: 20px;
+        }
+        #boxes {
+            margin-top: 20px;
+        }
+        #boxes .box {
+            float: left;
+            text-align: center;
+            width: 30%;
+            padding: 10px;
+        }
+        #boxes .box i {
+            font-size: 40px;
+            color: #0056b3;
+        }
+        .button {
+            display: inline-block;
+            background: #0056b3;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .login-form {
+            width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .login-form input[type="text"], .login-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .login-form input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background: #0056b3;
+            color: #ffffff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .login-form input[type="submit"]:hover {
+            background: #003d82;
+        }
 
-		<link href='http://fonts.googleapis.com/css?family=Graduate' rel='stylesheet' type='text/css'>
-		<![if !IE]>
-		<link href='/../css/style.css' rel='stylesheet' type='text/css'>
-		<![endif]>
-	</head>
+        footer {
+            background: #0056b3;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
 
+        .error-message {
+            color: #ff0000;
+            text-align: center;
+            margin-bottom: 10px;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .error-message.fade-out {
+            opacity: 0;
+        }
+
+
+    </style>
+</head>
 <body>
+    <header>
+        <div class="container">
+            <div id="branding">
+                <h1><span class="highlight">MedStore</span> Pro</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li class="current"><a href="#home">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#login">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-<form action="login.php" method="POST">
-	<center>
-	<h1>Medical Store Management</h1>
-	<hr />
-		Username : <input type="text" id="username" name="username" size="32" value="" /><br />
-		Password : <input type="password" id="password" name="password" size="32" value="" /><br />
-	<input type="submit" name="submit" value="Enter!" class="submit" />
-	</center>
-</form>
+    <section id="showcase">
+        <div class="container">
+            <h1>Streamline Your Medical Store Management</h1>
+            <p>Efficient inventory control, seamless transactions, and insightful analytics all in one place.</p>
+            <a href="#login" class="button">Get Started</a>
+        </div>
+    </section>
+
+    <section id="boxes">
+        <div class="container">
+            <div class="box">
+                <i class="fas fa-pills"></i>
+                <h3>Inventory Management</h3>
+                <p>Keep track of your medicines, manage stock levels, and automate reordering.</p>
+            </div>
+            <div class="box">
+                <i class="fas fa-cash-register"></i>
+                <h3>Sales & Billing</h3>
+                <p>Process transactions quickly and generate detailed invoices for your customers.</p>
+            </div>
+            <div class="box">
+                <i class="fas fa-chart-line"></i>
+                <h3>Analytics & Reporting</h3>
+                <p>Gain insights into your business with comprehensive reports and analytics.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="login">
+        <div class="container">
+            <form action="login.php" method="POST" class="login-form">
+                <h2>Login to MedStore Pro</h2>
+                <div id="error-message" class="error-message"></div>
+                <input type="text" id="username" name="username" placeholder="Username" required>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <input type="submit" name="submit" value="Login">
+            </form>
+        </div>
+    </section>
+
+
+    <footer>
+        <p>&copy; 2024 MedStore Pro. All rights reserved.</p>
+    </footer>
+
+    <script>
+          // Check for error parameter in URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const error = urlParams.get('error');
+          const errorMessage = document.getElementById('error-message');
+
+          function showError(message) {
+              errorMessage.textContent = message;
+              errorMessage.style.opacity = '1';
+
+              // Set a timeout to fade out the error message after 5 seconds
+              setTimeout(() => {
+                  errorMessage.classList.add('fade-out');
+              }, 5000);
+
+              // Remove the error parameter from the URL
+              window.history.replaceState({}, document.title, window.location.pathname);
+          }
+
+          if (error === '1') {
+              showError('Invalid username or password');
+          } else if (error === '2') {
+              showError('An error occurred. Please try again.');
+          }
+
+          // Remove the error message element after the fade-out animation
+          errorMessage.addEventListener('transitionend', function() {
+              if (errorMessage.classList.contains('fade-out')) {
+                  errorMessage.textContent = '';
+                  errorMessage.classList.remove('fade-out');
+                  errorMessage.style.opacity = '1';
+              }
+          });
+      </script>
+
 
 </body>
 </html>

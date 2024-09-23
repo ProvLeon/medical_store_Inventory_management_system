@@ -96,3 +96,31 @@ CREATE TABLE IF NOT EXISTS txn_person (
     FOREIGN KEY (pid_person) REFERENCES person(pid),
     FOREIGN KEY (pid_employee) REFERENCES person(pid)
 );
+
+-- Add this to db_create.sql if not already present
+CREATE TABLE IF NOT EXISTS employee (
+    pid INT PRIMARY KEY,
+    salary DECIMAL(10, 2) NOT NULL,
+    duty_timings VARCHAR(50) NOT NULL,
+    FOREIGN KEY (pid) REFERENCES person(pid)
+);
+
+-- Ensure there's a relationship between users and person
+ALTER TABLE users ADD COLUMN person_id INT;
+ALTER TABLE users ADD FOREIGN KEY (person_id) REFERENCES person(pid);
+
+
+-- Insert sample person data
+INSERT INTO person (name, address) VALUES
+('recept', '123 Reception St'),
+('doctor', '456 Doctor Ave'),
+('medadmin', '789 Admin Blvd');
+
+-- Update users table to link with person
+UPDATE users SET person_id = (SELECT pid FROM person WHERE name = users.username);
+
+-- Insert employee data for receptionist and doctor
+INSERT INTO employee (pid, salary, duty_timings)
+SELECT pid, 50000, '9AM-5PM'
+FROM person
+WHERE name IN ('recept', 'doctor');

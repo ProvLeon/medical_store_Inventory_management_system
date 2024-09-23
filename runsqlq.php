@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once 'session_config.php';
+
 if(!isset($_SESSION['med_admin']))
 {
     header("Location: index.html");
