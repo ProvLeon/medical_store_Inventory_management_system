@@ -4,6 +4,7 @@ define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'final_project');
+define('CURRENCY', 'GH₵');
 
 // Table names
 define('DB_TABLE_USERS', 'users');

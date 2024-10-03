@@ -50,10 +50,19 @@ mysqli_close($dbconn);
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="notificationsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-bell"></i> Notifications <span class="badge badge-light" id="notificationCount"></span>
+                        <i class="fas fa-bell"></i>
+                        <span class="badge badge-danger" id="notificationCount"><?php echo count($notifications); ?></span>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" id="notificationsList">
-                        <!-- Notifications will be dynamically added here -->
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown">
+                        <?php if (empty($notifications)): ?>
+                            <a class="dropdown-item" href="#">No new notifications</a>
+                        <?php else: ?>
+                            <?php foreach ($notifications as $notification): ?>
+                                <a class="dropdown-item notification-item" href="#" data-id="<?php echo $notification['id']; ?>" data-type="<?php echo $notification['type']; ?>" data-related-id="<?php echo $notification['related_id']; ?>">
+                                    <?php echo htmlspecialchars($notification['message']); ?>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -85,7 +94,7 @@ mysqli_close($dbconn);
                             <tr>
                                 <td><?php echo htmlspecialchars($medicine['name']); ?></td>
                                 <td><?php echo $medicine['quantity']; ?></td>
-                                <td>$<?php echo number_format($medicine['sp'], 2); ?></td>
+                                <td><?php echo(CURRENCY.number_format($medicine['sp'], 2)); ?></td>
                                 <td>
                                     <button class="btn btn-sm btn-info view-medicine" data-id="<?php echo $medicine['id']; ?>"><i class="fas fa-eye"></i> View</button>
                                     <button class="btn btn-sm btn-primary sell-medicine" data-id="<?php echo $medicine['id']; ?>"><i class="fas fa-cash-register"></i> Sell</button>
@@ -263,6 +272,7 @@ mysqli_close($dbconn);
        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
        <script src="js/reception-scripts.js"></script>
        <script>
+       var CURRENCY = "<?php echo CURRENCY; ?>";
        $(document).ready(function() {
            function updateNotifications() {
                $.ajax({
@@ -308,8 +318,8 @@ mysqli_close($dbconn);
                            var detailsHtml = `
                                <p><strong><i class="fas fa-prescription-bottle-alt"></i> Name:</strong> ${medicine.name}</p>
                                <p><strong><i class="fas fa-cubes"></i> Quantity:</strong> ${medicine.quantity}</p>
-                               <p><strong><i class="fas fa-tags"></i> Cost Price:</strong> $${medicine.cp}</p>
-                               <p><strong><i class="fas fa-dollar-sign"></i> Selling Price:</strong> $${medicine.sp}</p>
+                               <p><strong><i class="fas fa-tags"></i> Cost Price:</strong> ${CURRENCY}${medicine.cp}</p>
+                               <p><strong><i class="fas fa-dollar-sign"></i> Selling Price:</strong> ${CURRENCY}${medicine.sp}</p>
                                <p><strong><i class="fas fa-calendar-alt"></i> Expiry Date:</strong> ${medicine.expiry_date}</p>
                                <p><strong><i class="fas fa-flask"></i> Chemical Amount:</strong> ${medicine.chem_amount}</p>
                                <p><strong><i class="fas fa-clock"></i> Buy Timestamp:</strong> ${medicine.buy_timestamp}</p>
@@ -375,7 +385,7 @@ mysqli_close($dbconn);
                                <tr>
                                    <td>${medicine.name}</td>
                                    <td>${medicine.quantity}</td>
-                                   <td>$${Number(medicine.sp).toFixed(2)}</td>
+                                   <td>${CURRENCY}${Number(medicine.sp).toFixed(2)}</td>
                                    <td>
                                        <button class="btn btn-sm btn-info view-medicine" data-id="${medicine.id}"><i class="fas fa-eye"></i> View</button>
                                        <button class="btn btn-sm btn-primary sell-medicine" data-id="${medicine.id}"><i class="fas fa-cash-register"></i> Sell</button>

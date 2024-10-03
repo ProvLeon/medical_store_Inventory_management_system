@@ -149,7 +149,7 @@ mysqli_close($dbconn);
                                 <tr>
                                     <td><?php echo htmlspecialchars($medicine['name']); ?></td>
                                     <td><?php echo $medicine['quantity']; ?></td>
-                                    <td>$<?php echo number_format($medicine['sp'], 2); ?></td>
+                                    <td><?php echo(CURRENCY.number_format($medicine['sp'], 2)); ?></td>
                                     <td><?php echo $medicine['expiry_date']; ?></td>
                                     <td>
                                         <button class="btn btn-sm btn-info view-medicine" data-id="<?php echo $medicine['id']; ?>">

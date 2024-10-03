@@ -117,7 +117,7 @@ mysqli_close($dbconn);
                                             <tr>
                                                 <td><?php echo htmlspecialchars($medicine['name']); ?></td>
                                                 <td><?php echo $medicine['quantity']; ?></td>
-                                                <td>$<?php echo number_format($medicine['sp'], 2); ?></td>
+                                                <td><?php echo(CURRENCY. number_format($medicine['sp'], 2)); ?></td>
                                                 <td><?php echo $medicine['expiry_date']; ?></td>
                                                 <td>
                                                     <button class="btn btn-sm btn-info view-medicine" data-id="<?php echo $medicine['id']; ?>"><i class="fas fa-eye"></i> View</button>
@@ -143,7 +143,7 @@ mysqli_close($dbconn);
                                             <?php foreach ($soldOutMedicines as $medicine): ?>
                                             <tr>
                                                 <td><?php echo htmlspecialchars($medicine['name']); ?></td>
-                                                <td>$<?php echo number_format($medicine['sp'], 2); ?></td>
+                                                <td><?php echo(CURRENCY.number_format($medicine['sp'], 2)); ?></td>
                                                 <td><?php echo $medicine['expiry_date']; ?></td>
                                                 <td>
                                                     <button class="btn btn-sm btn-info view-medicine" data-id="<?php echo $medicine['id']; ?>"><i class="fas fa-eye"></i> View</button>
@@ -310,6 +310,7 @@ mysqli_close($dbconn);
         <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
         <script src="js/doctor-scripts.js"></script>
         <script>
+        var CURRENCY = "<?php echo CURRENCY; ?>";
         $(document).ready(function() {
             // Initialize DataTables
             $('#medicineTable, #soldOutTable').DataTable({
@@ -332,12 +333,13 @@ mysqli_close($dbconn);
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
+
                             var medicine = response.medicine;
                             var detailsHtml = `
                                 <p><strong><i class="fas fa-prescription-bottle-alt"></i> Name:</strong> ${medicine.name}</p>
                                 <p><strong><i class="fas fa-cubes"></i> Quantity:</strong> ${medicine.quantity}</p>
-                                <p><strong><i class="fas fa-tags"></i> Cost Price:</strong> $${medicine.cp}</p>
-                                <p><strong><i class="fas fa-dollar-sign"></i> Selling Price:</strong> $${medicine.sp}</p>
+                                <p><strong><i class="fas fa-tags"></i> Cost Price:</strong> ${CURRENCY}${medicine.cp}</p>
+                                <p><strong><i class="fas fa-dollar-sign"></i> Selling Price:</strong> ${CURRENCY}${medicine.sp}</p>
                                 <p><strong><i class="fas fa-calendar-alt"></i> Expiry Date:</strong> ${medicine.expiry_date}</p>
                                 <p><strong><i class="fas fa-flask"></i> Chemical Amount:</strong> ${medicine.chem_amount}</p>
                             `;
