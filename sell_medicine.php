@@ -1,10 +1,9 @@
 <?php
 require_once 'session_config.php';
-
 require_once 'config.php';
 require_once 'db_connection.php';
 
-if (!isset($_SESSION['receptionist'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'receptionist') {
     header('HTTP/1.0 403 Forbidden');
     exit('Access denied');
 }
@@ -110,7 +109,8 @@ try {
         'success' => true,
         'message' => "Sale completed successfully",
         'transactionId' => $transactionId,
-        'totalAmount' => $totalAmount
+        'totalAmount' => $totalAmount,
+        'updateMedicineList' => true // Add this flag
     ];
 } catch (Exception $e) {
     mysqli_rollback($dbconn);

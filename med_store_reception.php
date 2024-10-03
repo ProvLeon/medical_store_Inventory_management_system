@@ -3,15 +3,11 @@ require_once 'session_config.php';
 require_once 'config.php';
 require_once 'db_connection.php';
 
-// For debugging
-error_log('med_store_reception.php accessed. Session data: ' . print_r($_SESSION, true));
-
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'receptionist') {
     error_log('Access denied to med_store_reception.php. Role: ' . (isset($_SESSION['role']) ? $_SESSION['role'] : 'not set'));
     header("Location: index.html");
     exit();
 }
-
 
 $dbconn = Connect();
 
@@ -19,10 +15,16 @@ require_once 'notifications.php';
 $notificationsManager = new Notifications($dbconn);
 $notifications = $notificationsManager->getNotifications();
 
-// Fetch all medicines
-$query = "SELECT * FROM " . DB_TABLE_MEDICINE . " ORDER BY name";
+// Fetch available medicines (quantity > 0)
+$query = "SELECT * FROM " . DB_TABLE_MEDICINE . " WHERE quantity > 0 ORDER BY name";
 $result = mysqli_query($dbconn, $query);
 $medicines = mysqli_fetch_all($result, MYSQLI_ASSOC);
+mysqli_free_result($result);
+
+// Fetch sold out medicines
+$query = "SELECT * FROM " . DB_TABLE_MEDICINE . " WHERE quantity = 0 ORDER BY name";
+$result = mysqli_query($dbconn, $query);
+$soldOutMedicines = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_free_result($result);
 
 mysqli_close($dbconn);
@@ -40,7 +42,7 @@ mysqli_close($dbconn);
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">Med Store Reception</a>
+        <a class="navbar-brand" href="#"><i class="fas fa-clinic-medical"></i> Med Store Reception</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -48,14 +50,14 @@ mysqli_close($dbconn);
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="notificationsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Notifications <span class="badge badge-light" id="notificationCount"></span>
+                        <i class="fas fa-bell"></i> Notifications <span class="badge badge-light" id="notificationCount"></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" id="notificationsList">
                         <!-- Notifications will be dynamically added here -->
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="logout.php">Logout</a>
+                    <a class="nav-link" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </li>
             </ul>
         </div>
@@ -64,7 +66,7 @@ mysqli_close($dbconn);
     <div class="container-fluid mt-4">
         <div class="row">
             <div class="col-md-8">
-                <h2>Available Medicines</h2>
+                <h2><i class="fas fa-pills"></i> Available Medicines</h2>
                 <div class="form-group">
                     <input type="text" class="form-control" id="medicineSearch" placeholder="Search medicines...">
                 </div>
@@ -83,10 +85,10 @@ mysqli_close($dbconn);
                             <tr>
                                 <td><?php echo htmlspecialchars($medicine['name']); ?></td>
                                 <td><?php echo $medicine['quantity']; ?></td>
-                                <td><?php echo $medicine['sp']; ?></td>
+                                <td>$<?php echo number_format($medicine['sp'], 2); ?></td>
                                 <td>
-                                    <button class="btn btn-sm btn-info view-medicine" data-id="<?php echo $medicine['id']; ?>">View</button>
-                                    <button class="btn btn-sm btn-primary sell-medicine" data-id="<?php echo $medicine['id']; ?>">Sell</button>
+                                    <button class="btn btn-sm btn-info view-medicine" data-id="<?php echo $medicine['id']; ?>"><i class="fas fa-eye"></i> View</button>
+                                    <button class="btn btn-sm btn-primary sell-medicine" data-id="<?php echo $medicine['id']; ?>"><i class="fas fa-cash-register"></i> Sell</button>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -95,58 +97,74 @@ mysqli_close($dbconn);
                 </div>
             </div>
             <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                        <button class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#sellMedicineModal">
+                            <i class="fas fa-shopping-cart"></i> Sell Multiple Medicines
+                        </button>
+                        <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#purchaseMedicineModal">
+                            <i class="fas fa-truck"></i> Purchase Medicine
+                        </button>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Quick Actions</h5>
-                        <button class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#sellMedicineModal">Sell Multiple Medicines</button>
-                        <button class="btn btn-secondary btn-block" data-toggle="modal" data-target="#purchaseMedicineModal">Purchase Medicine</button>
+                        <h5 class="card-title"><i class="fas fa-exclamation-triangle"></i> Sold Out Medicines</h5>
+                        <ul class="list-group" id="soldOutList">
+                            <?php foreach ($soldOutMedicines as $medicine): ?>
+                            <li class="list-group-item"><?php echo htmlspecialchars($medicine['name']); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Sell Medicine Modal -->
-    <div class="modal fade" id="sellMedicineModal" tabindex="-1" role="dialog" aria-labelledby="sellMedicineModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="sellMedicineModalLabel">Sell Medicine</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="sellMedicineForm">
-                        <div id="medicineFields">
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="medicineId1">Medicine Name</label>
-                                    <select class="form-control medicine-select" id="medicineId1" name="medicineId[]" required>
-                                        <!-- Options will be populated dynamically -->
-                                    </select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="quantity1">Quantity</label>
-                                    <input type="number" class="form-control" id="quantity1" name="quantity[]" min="1" required>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="remove1" class="d-block">&nbsp;</label>
-                                    <button type="button" class="btn btn-danger remove-medicine" id="remove1">Remove</button>
+
+    <!-- Sell Multiple Medicines Modal -->
+        <div class="modal fade" id="sellMedicineModal" tabindex="-1" role="dialog" aria-labelledby="sellMedicineModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="sellMedicineModalLabel">Sell Multiple Medicines</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="sellMultipleMedicineForm">
+                            <div id="medicineFields">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="medicineId1">Medicine Name</label>
+                                        <select class="form-control medicine-select" id="medicineId1" name="medicineId[]" required>
+                                            <!-- Options will be populated dynamically -->
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="quantity1">Quantity</label>
+                                        <input type="number" class="form-control" id="quantity1" name="quantity[]" min="1" required>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label for="remove1" class="d-block">&nbsp;</label>
+                                        <button type="button" class="btn btn-danger remove-medicine" id="remove1">Remove</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <button type="button" class="btn btn-secondary" id="addMedicine">Add Another Medicine</button>
-                        <div class="form-group mt-3">
-                            <label for="customerName">Customer Name</label>
-                            <input type="text" class="form-control" id="customerName" name="customerName" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Complete Sale</button>
-                    </form>
+                            <button type="button" class="btn btn-secondary" id="addMedicine">Add Another Medicine</button>
+                            <div class="form-group mt-3">
+                                <label for="customerName">Customer Name</label>
+                                <input type="text" class="form-control" id="customerName" name="customerName" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Complete Sale</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
 
     <!-- Purchase Medicine Modal -->
     <div class="modal fade" id="purchaseMedicineModal" tabindex="-1" role="dialog" aria-labelledby="purchaseMedicineModalLabel" aria-hidden="true">
@@ -241,112 +259,244 @@ mysqli_close($dbconn);
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="js/reception-scripts.js"></script>
-    <script>
-    $(document).ready(function() {
-        // Function to update notifications
-        function updateNotifications() {
-            $.ajax({
-                url: 'get_notifications.php',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    var notificationsList = $('#notificationsList');
-                    var notificationCount = $('#notificationCount');
-                    notificationsList.empty();
-                    notificationCount.text(data.length);
+       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+       <script src="js/reception-scripts.js"></script>
+       <script>
+       $(document).ready(function() {
+           function updateNotifications() {
+               $.ajax({
+                   url: 'get_notifications.php',
+                   type: 'GET',
+                   dataType: 'json',
+                   success: function(data) {
+                       var notificationsList = $('#notificationsList');
+                       var notificationCount = $('#notificationCount');
+                       notificationsList.empty();
+                       notificationCount.text(data.length);
 
-                    $.each(data, function(index, notification) {
-                        notificationsList.append(
-                            $('<a>').addClass('dropdown-item')
-                                    .text(notification.message)
-                        );
-                    });
-                }
-            });
-        }
+                       $.each(data, function(index, notification) {
+                           notificationsList.append(
+                               $('<a>').addClass('dropdown-item')
+                                       .html('<i class="fas fa-info-circle"></i> ' + notification.message)
+                           );
+                       });
+                   }
+               });
+           }
 
-        // Update notifications on page load and every 5 minutes
-        updateNotifications();
-        setInterval(updateNotifications, 300000);
+           updateNotifications();
+           setInterval(updateNotifications, 300000);
 
-        // Medicine search functionality
-        $("#medicineSearch").on("keyup", function() {
-            var value = $(this).val().toLowerCase();
-            $("#medicineTable tr").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        });
+           $("#medicineSearch").on("keyup", function() {
+               var value = $(this).val().toLowerCase();
+               $("#medicineTable tr").filter(function() {
+                   $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+               });
+           });
 
-        // View medicine details
-        $(document).on('click', '.view-medicine', function() {
-            var medicineId = $(this).data("id");
-            $.ajax({
-                url: 'get_medicine_details.php',
-                type: 'GET',
-                data: { id: medicineId },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        var medicine = response.medicine;
-                        var detailsHtml = `
-                            <p><strong>Name:</strong> ${medicine.name}</p>
-                            <p><strong>Quantity:</strong> ${medicine.quantity}</p>
-                            <p><strong>Cost Price:</strong> ${medicine.cp}</p>
-                            <p><strong>Selling Price:</strong> ${medicine.sp}</p>
-                            <p><strong>Expiry Date:</strong> ${medicine.expiry_date}</p>
-                            <p><strong>Chemical Amount:</strong> ${medicine.chem_amount}</p>
-                            <p><strong>Buy Timestamp:</strong> ${medicine.buy_timestamp}</p>
-                            <p><strong>Pharmacos:</strong> ${medicine.pharmacos.join(', ') || 'None'}</p>
-                            <p><strong>Compounds:</strong> ${medicine.compounds.join(', ') || 'None'}</p>
-                        `;
-                        $("#viewMedicineBody").html(detailsHtml);
-                        $("#viewMedicineModal").modal('show');
-                    } else {
-                        alert("Error: " + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching medicine details:", error);
-                    alert("Error fetching medicine details. Please try again.");
-                }
-            });
-        });
+           $(document).on('click', '.view-medicine', function() {
+               var medicineId = $(this).data("id");
+               $.ajax({
+                   url: 'get_medicine_details.php',
+                   type: 'GET',
+                   data: { id: medicineId },
+                   dataType: 'json',
+                   success: function(response) {
+                       if (response.success) {
+                           var medicine = response.medicine;
+                           var detailsHtml = `
+                               <p><strong><i class="fas fa-prescription-bottle-alt"></i> Name:</strong> ${medicine.name}</p>
+                               <p><strong><i class="fas fa-cubes"></i> Quantity:</strong> ${medicine.quantity}</p>
+                               <p><strong><i class="fas fa-tags"></i> Cost Price:</strong> $${medicine.cp}</p>
+                               <p><strong><i class="fas fa-dollar-sign"></i> Selling Price:</strong> $${medicine.sp}</p>
+                               <p><strong><i class="fas fa-calendar-alt"></i> Expiry Date:</strong> ${medicine.expiry_date}</p>
+                               <p><strong><i class="fas fa-flask"></i> Chemical Amount:</strong> ${medicine.chem_amount}</p>
+                               <p><strong><i class="fas fa-clock"></i> Buy Timestamp:</strong> ${medicine.buy_timestamp}</p>
+                               <p><strong><i class="fas fa-pills"></i> Pharmacos:</strong> ${medicine.pharmacos.join(', ') || 'None'}</p>
+                               <p><strong><i class="fas fa-atom"></i> Compounds:</strong> ${medicine.compounds.join(', ') || 'None'}</p>
+                           `;
+                           $("#viewMedicineBody").html(detailsHtml);
+                           $("#viewMedicineModal").modal('show');
+                       } else {
+                           alert("Error: " + response.message);
+                       }
+                   },
+                   error: function(xhr, status, error) {
+                       console.error("Error fetching medicine details:", error);
+                       alert("Error fetching medicine details. Please try again.");
+                   }
+               });
+           });
 
+           $(document).on('click', '.sell-medicine', function() {
+               var medicineId = $(this).data("id");
+               $("#singleMedicineId").val(medicineId);
+               $("#sellSingleMedicineModal").modal('show');
+           });
 
-        // Sell single medicine
-        $(document).on('click', '.sell-medicine', function() {
-            var medicineId = $(this).data("id");
-            $("#singleMedicineId").val(medicineId);
-            $("#sellSingleMedicineModal").modal('show');
-        });
+           $("#sellSingleMedicineForm").submit(function(e) {
+               e.preventDefault();
+               $.ajax({
+                   url: 'sell_medicine.php',
+                   type: 'POST',
+                   data: $(this).serialize(),
+                   dataType: 'json',
+                   success: function(response) {
+                       if (response.success) {
+                           alert("Sale completed successfully!\nTransaction ID: " + response.transactionId + "\nTotal Amount: $" + response.totalAmount);
+                           $("#sellSingleMedicineModal").modal('hide');
+                           if (response.updateMedicineList) {
+                               updateMedicineList(); // Call the function to update the medicine list
+                           }
+                       } else {
+                           alert("Error completing sale: " + response.message);
+                       }
+                   },
+                   error: function() {
+                       alert("Error completing sale. Please try again.");
+                   }
+               });
+           });
 
-        // Handle single medicine sale
-        $("#sellSingleMedicineForm").submit(function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: 'sell_medicine.php',
-                type: 'POST',
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        alert("Sale completed successfully!\nTransaction ID: " + response.transactionId + "\nTotal Amount: $" + response.totalAmount);
-                        $("#sellSingleMedicineModal").modal('hide');
-                        location.reload(); // Refresh the page to update medicine quantities
-                    } else {
-                        alert("Error completing sale: " + response.message);
-                    }
-                },
-                error: function() {
-                    alert("Error completing sale. Please try again.");
-                }
-            });
-        });
+           function updateMedicineList() {
+               $.ajax({
+                   url: 'get_updated_medicines.php',
+                   type: 'GET',
+                   dataType: 'json',
+                   success: function(response) {
+                       var medicineTable = $("#medicineTable tbody");
+                       var soldOutList = $("#soldOutList");
+                       medicineTable.empty();
+                       soldOutList.empty();
 
-    });
-    </script>
-</body>
-</html>
+                       $.each(response.availableMedicines, function(index, medicine) {
+                           medicineTable.append(`
+                               <tr>
+                                   <td>${medicine.name}</td>
+                                   <td>${medicine.quantity}</td>
+                                   <td>$${Number(medicine.sp).toFixed(2)}</td>
+                                   <td>
+                                       <button class="btn btn-sm btn-info view-medicine" data-id="${medicine.id}"><i class="fas fa-eye"></i> View</button>
+                                       <button class="btn btn-sm btn-primary sell-medicine" data-id="${medicine.id}"><i class="fas fa-cash-register"></i> Sell</button>
+                                   </td>
+                               </tr>
+                           `);
+                       });
+
+                       $.each(response.soldOutMedicines, function(index, medicine) {
+                           soldOutList.append(`<li class="list-group-item">${medicine.name}</li>`);
+                       });
+                   },
+                   error: function() {
+                       alert("Error updating medicine list. Please refresh the page.");
+                   }
+               });
+           }
+           // Load medicine options
+                   function loadMedicineOptions() {
+                       $.ajax({
+                           url: 'get_medicines.php',
+                           type: 'GET',
+                           dataType: 'json',
+                           success: function(data) {
+                               let optionsHtml = '<option value="">Select Medicine</option>';
+                               data.forEach(medicine => {
+                                   optionsHtml += `<option value="${medicine.id}">${medicine.name}</option>`;
+                               });
+                               $('.medicine-select').html(optionsHtml);
+                           },
+                           error: function(xhr, status, error) {
+                               console.error("Error loading medicines:", error);
+                               alert("Error loading medicines. Please try again.");
+                           }
+                       });
+                   }
+
+                   // Add medicine field
+                   $('#addMedicine').click(function() {
+                       let medicineCount = $('.medicine-select').length + 1;
+                       let newField = `
+                           <div class="form-row">
+                               <div class="form-group col-md-6">
+                                   <label for="medicineId${medicineCount}">Medicine Name</label>
+                                   <select class="form-control medicine-select" id="medicineId${medicineCount}" name="medicineId[]" required>
+                                       <!-- Options will be populated dynamically -->
+                                   </select>
+                               </div>
+                               <div class="form-group col-md-4">
+                                   <label for="quantity${medicineCount}">Quantity</label>
+                                   <input type="number" class="form-control" id="quantity${medicineCount}" name="quantity[]" min="1" required>
+                               </div>
+                               <div class="form-group col-md-2">
+                                   <label for="remove${medicineCount}" class="d-block">&nbsp;</label>
+                                   <button type="button" class="btn btn-danger remove-medicine" id="remove${medicineCount}">Remove</button>
+                               </div>
+                           </div>
+                       `;
+                       $('#medicineFields').append(newField);
+                       loadMedicineOptions();
+                   });
+
+                   // Remove medicine field
+                   $(document).on('click', '.remove-medicine', function() {
+                       $(this).closest('.form-row').remove();
+                   });
+
+                   // Sell multiple medicines
+                   $('#sellMultipleMedicineForm').submit(function(e) {
+                       e.preventDefault();
+                       $.ajax({
+                           url: 'sell_medicine.php',
+                           type: 'POST',
+                           data: $(this).serialize(),
+                           dataType: 'json',
+                           success: function(response) {
+                               if (response.success) {
+                                   alert("Sale completed successfully!\nTransaction ID: " + response.transactionId + "\nTotal Amount: $" + response.totalAmount);
+                                   $('#sellMedicineModal').modal('hide');
+                                   if (response.updateMedicineList) {
+                                       updateMedicineList();
+                                   }
+                               } else {
+                                   alert("Error completing sale: " + response.message);
+                               }
+                           },
+                           error: function() {
+                               alert("Error completing sale. Please try again.");
+                           }
+                       });
+                   });
+
+                   // Sell single medicine
+                   $("#sellSingleMedicineForm").submit(function(e) {
+                       e.preventDefault();
+                       $.ajax({
+                           url: 'sell_medicine.php',
+                           type: 'POST',
+                           data: $(this).serialize(),
+                           dataType: 'json',
+                           success: function(response) {
+                               if (response.success) {
+                                   alert("Sale completed successfully!\nTransaction ID: " + response.transactionId + "\nTotal Amount: $" + response.totalAmount);
+                                   $("#sellSingleMedicineModal").modal('hide');
+                                   if (response.updateMedicineList) {
+                                       updateMedicineList();
+                                   }
+                               } else {
+                                   alert("Error completing sale: " + response.message);
+                               }
+                           },
+                           error: function() {
+                               alert("Error completing sale. Please try again.");
+                           }
+                       });
+                   });
+
+                   // Initial load
+                   loadMedicineOptions();
+                   updateMedicineList();
+               });
+               </script>
+           </body>
+           </html>

@@ -9,7 +9,7 @@ class Notifications {
     }
 
     public function checkLowStock() {
-        $query = "SELECT name, quantity FROM medicine WHERE quantity <= ?";
+        $query = "SELECT id, name, quantity FROM " . DB_TABLE_MEDICINE . " WHERE quantity <= ?";
         $stmt = $this->dbconn->prepare($query);
         $stmt->bind_param("i", $this->lowStockThreshold);
         $stmt->execute();
@@ -25,7 +25,7 @@ class Notifications {
 
     public function checkExpiringItems() {
         $expiryDate = date('Y-m-d', strtotime("+{$this->expiryWarningDays} days"));
-        $query = "SELECT name, expiry_date FROM medicine WHERE expiry_date <= ? AND expiry_date > CURDATE()";
+        $query = "SELECT id, name, expiry_date FROM " . DB_TABLE_MEDICINE . " WHERE expiry_date <= ? AND expiry_date > CURDATE()";
         $stmt = $this->dbconn->prepare($query);
         $stmt->bind_param("s", $expiryDate);
         $stmt->execute();
@@ -48,14 +48,18 @@ class Notifications {
         foreach ($lowStockItems as $item) {
             $notifications[] = [
                 'type' => 'low_stock',
-                'message' => "Low stock alert: {$item['name']} (Quantity: {$item['quantity']})"
+                'message' => "Low stock alert: {$item['name']} (Quantity: {$item['quantity']})",
+                'id' => $item['id'],
+                'related_id' => $item['id']
             ];
         }
 
         foreach ($expiringItems as $item) {
             $notifications[] = [
                 'type' => 'expiring',
-                'message' => "Expiring soon: {$item['name']} (Expiry: {$item['expiry_date']})"
+                'message' => "Expiring soon: {$item['name']} (Expiry: {$item['expiry_date']})",
+                'id' => $item['id'],
+                'related_id' => $item['id']
             ];
         }
 

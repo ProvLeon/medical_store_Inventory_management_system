@@ -1,0 +1,106 @@
+%PDF-1.7
+1 0 obj
+<</Type /Catalog /Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type /Pages /Kids [3 0 R] /Count 1>>
+endobj
+3 0 obj
+<</Type /Page /Parent 2 0 R /Resources 4 0 R /MediaBox [0 0 612 792] /Contents 6 0 R>>
+endobj
+4 0 obj
+<</Font <</F1 5 0 R>>>>
+endobj
+5 0 obj
+<</Type /Font /Subtype /Type1 /BaseFont /Helvetica>>
+endobj
+6 0 obj
+<< /Length 1000 >>
+stream
+BT
+/F1 16 Tf
+50 700 Td
+(Inventory Report) Tj
+ET
+BT
+/F1 12 Tf
+50 670 Td
+(name) Tj
+150 670 Td
+(quantity) Tj
+250 670 Td
+(cost_price) Tj
+350 670 Td
+(selling_price) Tj
+450 670 Td
+(expiry_date) Tj
+ET
+BT
+/F1 10 Tf
+50 650 Td
+(G tablet) Tj
+150 650 Td
+(16) Tj
+250 650 Td
+(3.00) Tj
+350 650 Td
+(3.00) Tj
+450 650 Td
+(2024-09-29) Tj
+ET
+BT
+/F1 10 Tf
+50 630 Td
+(Multivitamin) Tj
+150 630 Td
+(30) Tj
+250 630 Td
+(3.00) Tj
+350 630 Td
+(4.00) Tj
+450 630 Td
+(2025-04-23) Tj
+ET
+BT
+/F1 10 Tf
+50 610 Td
+(paracitamol) Tj
+150 610 Td
+(0) Tj
+250 610 Td
+(20.00) Tj
+350 610 Td
+(20.00) Tj
+450 610 Td
+(2024-09-19) Tj
+ET
+BT
+/F1 10 Tf
+50 590 Td
+(paracitamol) Tj
+150 590 Td
+(20) Tj
+250 590 Td
+(3.00) Tj
+350 590 Td
+(3.00) Tj
+450 590 Td
+(2024-11-29) Tj
+ET
+ET
+endstream
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000010 00000 n 
+0000000056 00000 n 
+0000000111 00000 n 
+0000000212 00000 n 
+0000000250 00000 n 
+0000000310 00000 n 
+trailer
+<</Size 9/Root 1 0 R>>
+startxref
+1000
+%%EOF

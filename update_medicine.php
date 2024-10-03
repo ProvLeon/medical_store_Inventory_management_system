@@ -4,7 +4,7 @@ require_once 'session_config.php';
 require_once 'config.php';
 require_once 'db_connection.php';
 
-if (!isset($_SESSION['med_admin'])) {
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['med_admin'])) {
     header('HTTP/1.0 403 Forbidden');
     exit('Access denied');
 }
@@ -50,6 +50,17 @@ try {
     if ($result) {
         $response['success'] = true;
         $response['message'] = "Item updated successfully";
+
+        // Check if the quantity is above the threshold
+        $lowStockThreshold = 10; // Set your desired threshold
+        if ($quantity > $lowStockThreshold) {
+            // Remove low stock notification if it exists
+            $deleteNotificationQuery = "DELETE FROM notifications WHERE type = 'low_stock' AND related_id = ?";
+            $deleteStmt = mysqli_prepare($dbconn, $deleteNotificationQuery);
+            mysqli_stmt_bind_param($deleteStmt, "i", $id);
+            mysqli_stmt_execute($deleteStmt);
+            mysqli_stmt_close($deleteStmt);
+        }
     } else {
         throw new Exception(mysqli_error($dbconn));
     }

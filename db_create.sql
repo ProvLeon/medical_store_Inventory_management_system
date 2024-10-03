@@ -97,6 +97,16 @@ CREATE TABLE IF NOT EXISTS txn_person (
     FOREIGN KEY (pid_employee) REFERENCES person(pid)
 );
 
+CREATE TABLE notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type ENUM('low_stock', 'new_user', 'report_ready', 'other') NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    related_id INT,
+    threshold INT
+);
+
 -- Add this to db_create.sql if not already present
 CREATE TABLE IF NOT EXISTS employee (
     pid INT PRIMARY KEY,
