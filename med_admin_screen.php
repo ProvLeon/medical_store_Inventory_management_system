@@ -131,6 +131,7 @@ mysqli_close($dbconn);
                         <a class="nav-link" id="analytics-tab" data-toggle="tab" href="#analytics" role="tab" aria-controls="analytics" aria-selected="false"><i class="fas fa-chart-line"></i> Analytics</a>
                     </li>
                 </ul>
+                <div class="tab-content mt-3" id="myTabContent">
                 <div class="tab-pane fade show active" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
                     <div class="table-responsive">
                         <table class="table table-striped table-hover" id="medicineTable">
@@ -168,32 +169,32 @@ mysqli_close($dbconn);
                     </div>
                 </div>
                 <div class="tab-pane fade" id="transactions" role="tabpanel" aria-labelledby="transactions-tab">
-                        <h3 class="mb-3">Recent Transactions</h3>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover" id="transactionsTable">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Medicine</th>
-                                        <th>Quantity</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($recent_transactions as $transaction): ?>
-                                    <tr>
-                                        <td><?php echo $transaction['id']; ?></td>
-                                        <td><?php echo $transaction['txn_timestamp']; ?></td>
-                                        <td><?php echo $transaction['buy_sell'] == 'B' ? '<span class="badge badge-success">Buy</span>' : '<span class="badge badge-info">Sell</span>'; ?></td>
-                                        <td><?php echo htmlspecialchars($transaction['name']); ?></td>
-                                        <td><?php echo $transaction['qty_buy_sell']; ?></td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                    <h3 class="mb-3">Recent Transactions</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Medicine</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($recent_transactions as $transaction): ?>
+                                <tr>
+                                    <td><?php echo $transaction['id']; ?></td>
+                                    <td><?php echo $transaction['txn_timestamp']; ?></td>
+                                    <td><?php echo $transaction['buy_sell'] == 'B' ? '<span class="badge badge-success">Buy</span>' : '<span class="badge badge-info">Sell</span>'; ?></td>
+                                    <td><?php echo htmlspecialchars($transaction['name']); ?></td>
+                                    <td><?php echo $transaction['qty_buy_sell']; ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
                     <div class="tab-pane fade" id="analytics" role="tabpanel" aria-labelledby="analytics-tab">
                         <h3 class="mb-3">Sales Analytics</h3>
                         <div class="card">
@@ -843,30 +844,7 @@ mysqli_close($dbconn);
                             });
                         }
 
-                        // Delete medicine
-                        $(".delete-medicine").click(function() {
-                            var medicineId = $(this).data("id");
-                            if (confirm("Are you sure you want to delete this medicine?")) {
-                                $.ajax({
-                                    url: 'delete_medicine.php',
-                                    type: 'POST',
-                                    data: { id: medicineId },
-                                    dataType: 'json',
-                                    success: function(response) {
-                                        if (response.success) {
-                                            alert("Medicine deleted successfully!");
-                                            location.reload(); // Reload the page to update the medicine list
-                                        } else {
-                                            alert("Error: " + response.message);
-                                        }
-                                    },
-                                    error: function(xhr, status, error) {
-                                        console.error("Error deleting medicine:", error);
-                                        alert("Error deleting medicine. Please try again.");
-                                    }
-                                });
-                            }
-                        });
+
 
                         // Call these functions immediately and set intervals
                         refreshNotifications();
