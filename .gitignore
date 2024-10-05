@@ -4,3 +4,7 @@ config.php
 *.synctex.gz
 *.toc
 reports/
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
+branch_structure.json
