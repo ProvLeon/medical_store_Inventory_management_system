@@ -15,7 +15,7 @@ if(isset($_POST['submit']) && isset($_POST['username']) && isset($_POST['passwor
     $dbconn = Connect();
 
     // For debugging
-    error_log("Login attempt for username: " . $username);
+    // error_log("Login attempt for username: " . $username);
 
     $query = "SELECT u.id, u.role, u.password, p.pid as employee_id FROM " . DB_TABLE_USERS . " u
               LEFT JOIN " . DB_TABLE_PERSON . " p ON u.person_id = p.pid
@@ -41,7 +41,7 @@ if(isset($_POST['submit']) && isset($_POST['username']) && isset($_POST['passwor
         }
 
         // For debugging
-        error_log('Login successful. Session data: ' . print_r($_SESSION, true));
+        // error_log('Login successful. Session data: ' . print_r($_SESSION, true));
 
         mysqli_close($dbconn);
 

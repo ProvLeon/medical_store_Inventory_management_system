@@ -11,13 +11,13 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['med_admin'])) {
 
 $dbconn = Connect();
 
-$id = intval($_POST['updateItemId']);
-$name = mysqli_real_escape_string($dbconn, $_POST['updateItemName']);
-$quantity = intval($_POST['updateItemQuantity']);
-$cp = floatval($_POST['updateItemCp']);
-$sp = floatval($_POST['updateItemSp']);
-$expiry_date = !empty($_POST['updateItemExpiryDate']) ? mysqli_real_escape_string($dbconn, $_POST['updateItemExpiryDate']) : null;
-$chem_amount = mysqli_real_escape_string($dbconn, $_POST['updateItemChemAmount']);
+$id = intval($_POST['id']);
+$name = mysqli_real_escape_string($dbconn, $_POST['name']);
+$quantity = intval($_POST['quantity']);
+$cp = floatval($_POST['cp']);
+$sp = floatval($_POST['sp']);
+$expiry_date = !empty($_POST['expirty_date']) ? mysqli_real_escape_string($dbconn, $_POST['expirty_date']) : null;
+$chem_amount = mysqli_real_escape_string($dbconn, $_POST['chem_amount']);
 
 // Prepare the base query
 $query = "UPDATE " . DB_TABLE_MEDICINE . " SET
