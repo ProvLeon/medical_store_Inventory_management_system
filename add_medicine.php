@@ -13,14 +13,14 @@ $dbconn = Connect();
 // Debug: Check received POST data
 // var_dump($_POST);
 
-$name = mysqli_real_escape_string($dbconn, $_POST['itemName']);
-$quantity = intval($_POST['itemQuantity']);
-$cp = floatval($_POST['itemCp']);
-$sp = floatval($_POST['itemSp']);
-$expiry_date = mysqli_real_escape_string($dbconn, $_POST['itemExpiryDate']);
-$chem_amount = mysqli_real_escape_string($dbconn, $_POST['itemChemAmount']);
-$pharmaco = mysqli_real_escape_string($dbconn, $_POST['itemPharmaco']);
-$compound = mysqli_real_escape_string($dbconn, $_POST['itemCompound']);
+$name = mysqli_real_escape_string($dbconn, $_POST['name']);
+$quantity = intval($_POST['quantity']);
+$cp = floatval($_POST['cp']);
+$sp = floatval($_POST['sp']);
+$expiry_date = mysqli_real_escape_string($dbconn, $_POST['expiry_date']);
+$chem_amount = mysqli_real_escape_string($dbconn, $_POST['chem_amount']);
+// $pharmaco = mysqli_real_escape_string($dbconn, $_POST['itemPharmaco']);
+// $compound = mysqli_real_escape_string($dbconn, $_POST['itemCompound']);
 
 mysqli_begin_transaction($dbconn);
 
@@ -36,19 +36,19 @@ try {
 
     $medicine_id = mysqli_insert_id($dbconn);
 
-    if (!empty($pharmaco)) {
-        $query = "INSERT INTO name_pharma (medicine_id, pharmaco) VALUES (?, ?)";
-        $stmt = mysqli_prepare($dbconn, $query);
-        mysqli_stmt_bind_param($stmt, "is", $medicine_id, $pharmaco);
-        mysqli_stmt_execute($stmt);
-    }
+    // if (!empty($pharmaco)) {
+    //     $query = "INSERT INTO name_pharma (medicine_id, pharmaco) VALUES (?, ?)";
+    //     $stmt = mysqli_prepare($dbconn, $query);
+    //     mysqli_stmt_bind_param($stmt, "is", $medicine_id, $pharmaco);
+    //     mysqli_stmt_execute($stmt);
+    // }
 
-    if (!empty($compound)) {
-        $query = "INSERT INTO name_compound (medicine_id, compound) VALUES (?, ?)";
-        $stmt = mysqli_prepare($dbconn, $query);
-        mysqli_stmt_bind_param($stmt, "is", $medicine_id, $compound);
-        mysqli_stmt_execute($stmt);
-    }
+    // if (!empty($compound)) {
+    //     $query = "INSERT INTO name_compound (medicine_id, compound) VALUES (?, ?)";
+    //     $stmt = mysqli_prepare($dbconn, $query);
+    //     mysqli_stmt_bind_param($stmt, "is", $medicine_id, $compound);
+    //     mysqli_stmt_execute($stmt);
+    // }
 
     // Check if the quantity is below the threshold
        $lowStockThreshold = 10; // Set your desired threshold
